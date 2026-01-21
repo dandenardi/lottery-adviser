@@ -21,6 +21,11 @@ dev = [
     "ruff>=0.1.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["data*", "scripts*", "venv*"]
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]

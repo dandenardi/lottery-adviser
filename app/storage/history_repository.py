@@ -53,7 +53,26 @@ class LotteryHistoryRepository:
             )
 
         try:
-            df = pd.read_excel(self.file_path)
+            # Try loading with skiprows=6 first (Lotofácil format from asloterias.com.br - header on line 7)
+            # Then fallback to skiprows=0 for standard format
+            df = None
+            
+            for skip in [6, 0]:
+                try:
+                    temp_df = pd.read_excel(self.file_path, skiprows=skip)
+                    # Normalize column names
+                    temp_df.columns = [str(col).strip().lower() for col in temp_df.columns]
+                    
+                    # Check if any column contains 'concurso'
+                    if any('concurso' in col for col in temp_df.columns):
+                        df = temp_df
+                        break
+                except Exception as e:
+                    continue
+            
+            if df is None:
+                raise ValueError("Could not find valid lottery data format in file")
+                
         except Exception as e:
             raise ValueError(f"Failed to read Excel file: {e}")
 
@@ -61,11 +80,21 @@ class LotteryHistoryRepository:
             raise ValueError("The lottery history file is empty.")
 
         # Validate that we have at least the basic columns
-        if "concurso" not in df.columns:
+        # Check if any column name contains 'concurso'
+        has_concurso = any('concurso' in str(col).lower() for col in df.columns)
+        
+        if not has_concurso:
             raise ValueError(
                 "Invalid file format: 'concurso' column not found. "
+                f"Found columns: {df.columns.tolist()}\n"
                 "Expected columns: concurso, data, and number columns."
             )
+        
+        # Rename first column to 'concurso' if it contains 'concurso'
+        for i, col in enumerate(df.columns):
+            if 'concurso' in str(col).lower():
+                df.columns.values[i] = 'concurso'
+                break
 
         return df
 

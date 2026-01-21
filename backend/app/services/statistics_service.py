@@ -1,52 +1,72 @@
 """
-Lottery Statistics Service - Computes statistical analysis of lottery data.
+Lottery Statistics Service - Adapted from existing codebase.
 
-This module provides the LotteryStatisticsService class for analyzing
-historical lottery data and computing various statistics.
+This service computes statistical analysis of lottery data.
 """
 
 from typing import Dict, List
-
 import pandas as pd
+from sqlalchemy.orm import Session
+
+from app.models.lottery import LotteryResult
+from app.core.config import settings
 
 
 class LotteryStatisticsService:
     """
     Service for computing statistical analysis on lottery data.
     
-    This class provides pure statistical analysis without any LLM logic.
-    It computes frequencies, aggregates, and other statistical measures.
+    Adapted from the original app/analysis/statistics_service.py
     """
-
-    def compute_statistics(self, history: pd.DataFrame) -> Dict[str, any]:
+    
+    def __init__(self, db: Session):
+        """Initialize the service with database session."""
+        self.db = db
+    
+    def get_history_dataframe(self) -> pd.DataFrame:
+        """
+        Load lottery history from database into DataFrame.
+        
+        Returns:
+            DataFrame with lottery history
+        """
+        results = self.db.query(LotteryResult).order_by(LotteryResult.contest_number).all()
+        
+        if not results:
+            return pd.DataFrame()
+        
+        # Convert to DataFrame format similar to original
+        data = []
+        for result in results:
+            row = {
+                'concurso': result.contest_number,
+                'data': result.draw_date,
+            }
+            # Add number columns
+            for i, num in enumerate(result.numbers, start=1):
+                row[f'bola_{i}'] = num
+            data.append(row)
+        
+        return pd.DataFrame(data)
+    
+    def compute_statistics(self) -> Dict[str, any]:
         """
         Compute comprehensive statistics from the lottery history.
         
-        Args:
-            history: DataFrame containing historical lottery data.
-                    Expected to have 'concurso', 'data', and number columns.
-        
         Returns:
-            dict: A structured dictionary containing:
-                - total_contests: Total number of contests
-                - date_range: First and last draw dates
-                - number_frequencies: Frequency of each number drawn
-                - most_common_numbers: Top 10 most frequently drawn numbers
-                - least_common_numbers: Top 10 least frequently drawn numbers
-                - average_sum: Average sum of drawn numbers
-                - even_odd_distribution: Distribution of even vs odd numbers
-                - number_range_distribution: Distribution across number ranges
+            dict: A structured dictionary containing statistics
         """
+        history = self.get_history_dataframe()
+        
         if history.empty:
             return {
                 "error": "No data available for analysis",
                 "total_contests": 0,
             }
 
-        # Identify number columns (handles both 'bola_' and 'bola ' formats)
+        # Identify number columns
         number_columns = [col for col in history.columns if str(col).startswith("bola")]
         
-        # If no 'bola' columns, try to find numeric columns (excluding 'concurso')
         if not number_columns:
             number_columns = [
                 col
@@ -98,24 +118,21 @@ class LotteryStatisticsService:
             "odd_percentage": round(odd_count / len(all_numbers) * 100, 2),
         }
 
-        # Number range distribution for Lotofácil (1-25)
-        from app.config import LOTTERY_MIN_NUMBER, LOTTERY_MAX_NUMBER
-        
-        # Divide into 3 equal ranges
-        range_size = (LOTTERY_MAX_NUMBER - LOTTERY_MIN_NUMBER + 1) // 3
+        # Number range distribution
+        range_size = (settings.lottery_max_number - settings.lottery_min_number + 1) // 3
         ranges = {
-            f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}": 0,
+            f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}": 0,
+            f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}": 0,
+            f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}": 0,
         }
         
         for num in all_numbers:
-            if LOTTERY_MIN_NUMBER <= num < LOTTERY_MIN_NUMBER + range_size:
-                ranges[f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}"] += 1
-            elif LOTTERY_MIN_NUMBER + range_size <= num < LOTTERY_MIN_NUMBER + 2*range_size:
-                ranges[f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}"] += 1
+            if settings.lottery_min_number <= num < settings.lottery_min_number + range_size:
+                ranges[f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}"] += 1
+            elif settings.lottery_min_number + range_size <= num < settings.lottery_min_number + 2*range_size:
+                ranges[f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}"] += 1
             else:
-                ranges[f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}"] += 1
+                ranges[f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}"] += 1
 
         return {
             "total_contests": total_contests,
