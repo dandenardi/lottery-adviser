@@ -99,23 +99,23 @@ class LotteryStatisticsService:
         }
 
         # Number range distribution for Lotofácil (1-25)
-        from app.config import LOTTERY_MIN_NUMBER, LOTTERY_MAX_NUMBER
+        from app.core.config import settings
         
         # Divide into 3 equal ranges
-        range_size = (LOTTERY_MAX_NUMBER - LOTTERY_MIN_NUMBER + 1) // 3
+        range_size = (settings.lottery_max_number - settings.lottery_min_number + 1) // 3
         ranges = {
-            f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}": 0,
+            f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}": 0,
+            f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}": 0,
+            f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}": 0,
         }
         
         for num in all_numbers:
-            if LOTTERY_MIN_NUMBER <= num < LOTTERY_MIN_NUMBER + range_size:
-                ranges[f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}"] += 1
-            elif LOTTERY_MIN_NUMBER + range_size <= num < LOTTERY_MIN_NUMBER + 2*range_size:
-                ranges[f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}"] += 1
+            if settings.lottery_min_number <= num < settings.lottery_min_number + range_size:
+                ranges[f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}"] += 1
+            elif settings.lottery_min_number + range_size <= num < settings.lottery_min_number + 2*range_size:
+                ranges[f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}"] += 1
             else:
-                ranges[f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}"] += 1
+                ranges[f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}"] += 1
 
         return {
             "total_contests": total_contests,

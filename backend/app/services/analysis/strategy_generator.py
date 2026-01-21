@@ -12,12 +12,7 @@ import random
 
 import pandas as pd
 
-from app.config import (
-    LOTTERY_MIN_NUMBER,
-    LOTTERY_MAX_NUMBER,
-    NUMBERS_PER_GAME,
-    RECENT_DRAWS_WINDOW,
-)
+from app.core.config import settings
 
 
 class StrategyType(Enum):
@@ -112,9 +107,9 @@ class LotteryStrategyGenerator:
         cold_numbers = [int(num) for num, _ in sorted_freq[-10:]]
         
         # Select mix: 40% hot, 30% cold, 30% random
-        hot_count = int(NUMBERS_PER_GAME * 0.4)
-        cold_count = int(NUMBERS_PER_GAME * 0.3)
-        random_count = NUMBERS_PER_GAME - hot_count - cold_count
+        hot_count = int(settings.numbers_per_game * 0.4)
+        cold_count = int(settings.numbers_per_game * 0.3)
+        random_count = settings.numbers_per_game - hot_count - cold_count
         
         # Add hot numbers
         numbers.update(random.sample(hot_numbers, min(hot_count, len(hot_numbers))))
@@ -123,12 +118,12 @@ class LotteryStrategyGenerator:
         numbers.update(random.sample(cold_numbers, min(cold_count, len(cold_numbers))))
         
         # Fill remaining with random numbers
-        all_numbers = set(range(LOTTERY_MIN_NUMBER, LOTTERY_MAX_NUMBER + 1))
+        all_numbers = set(range(settings.lottery_min_number, settings.lottery_max_number + 1))
         available = all_numbers - numbers
         numbers.update(random.sample(list(available), min(random_count, len(available))))
         
         # Ensure we have exactly NUMBERS_PER_GAME numbers
-        while len(numbers) < NUMBERS_PER_GAME:
+        while len(numbers) < settings.numbers_per_game:
             available = all_numbers - numbers
             if available:
                 numbers.add(random.choice(list(available)))
@@ -145,9 +140,9 @@ class LotteryStrategyGenerator:
         sorted_freq = sorted(self.number_frequencies.items(), key=lambda x: x[1], reverse=True)
         
         # Take top numbers with some randomization
-        top_numbers = [int(num) for num, _ in sorted_freq[:NUMBERS_PER_GAME * 2]]
+        top_numbers = [int(num) for num, _ in sorted_freq[:settings.numbers_per_game * 2]]
         
-        return random.sample(top_numbers, NUMBERS_PER_GAME)
+        return random.sample(top_numbers, settings.numbers_per_game)
     
     def _cold_numbers_strategy(self) -> List[int]:
         """
@@ -159,9 +154,9 @@ class LotteryStrategyGenerator:
         sorted_freq = sorted(self.number_frequencies.items(), key=lambda x: x[1])
         
         # Take bottom numbers with some randomization
-        bottom_numbers = [int(num) for num, _ in sorted_freq[:NUMBERS_PER_GAME * 2]]
+        bottom_numbers = [int(num) for num, _ in sorted_freq[:settings.numbers_per_game * 2]]
         
-        return random.sample(bottom_numbers, NUMBERS_PER_GAME)
+        return random.sample(bottom_numbers, settings.numbers_per_game)
     
     def _weighted_random_strategy(self) -> List[int]:
         """
@@ -182,7 +177,7 @@ class LotteryStrategyGenerator:
         available_indices = list(range(len(numbers_list)))
         available_weights = normalized_weights.copy()
         
-        for _ in range(NUMBERS_PER_GAME):
+        for _ in range(settings.numbers_per_game):
             if not available_indices:
                 break
                 
@@ -212,7 +207,7 @@ class LotteryStrategyGenerator:
             List of suggested numbers
         """
         # Get recent draws
-        recent_history = self.history.tail(RECENT_DRAWS_WINDOW)
+        recent_history = self.history.tail(settings.recent_draws_window)
         
         # Identify number columns (handles both 'bola_' and 'bola ' formats)
         number_columns = [col for col in recent_history.columns if str(col).startswith("bola")]
@@ -232,15 +227,15 @@ class LotteryStrategyGenerator:
         # Prioritize numbers that appeared in recent draws
         if recent_freq:
             sorted_recent = sorted(recent_freq.items(), key=lambda x: x[1], reverse=True)
-            trending_numbers = [int(num) for num, _ in sorted_recent[:NUMBERS_PER_GAME * 2]]
+            trending_numbers = [int(num) for num, _ in sorted_recent[:settings.numbers_per_game * 2]]
             
             # Mix trending with some random
-            selected = set(random.sample(trending_numbers, min(int(NUMBERS_PER_GAME * 0.7), len(trending_numbers))))
+            selected = set(random.sample(trending_numbers, min(int(settings.numbers_per_game * 0.7), len(trending_numbers))))
             
             # Fill remaining with random
-            all_numbers = set(range(LOTTERY_MIN_NUMBER, LOTTERY_MAX_NUMBER + 1))
+            all_numbers = set(range(settings.lottery_min_number, settings.lottery_max_number + 1))
             available = all_numbers - selected
-            selected.update(random.sample(list(available), NUMBERS_PER_GAME - len(selected)))
+            selected.update(random.sample(list(available), settings.numbers_per_game - len(selected)))
             
             return list(selected)
         else:
@@ -273,20 +268,20 @@ class LotteryStrategyGenerator:
         cold_count = sum(1 for n in numbers if n in cold_numbers)
         
         # Range distribution (divide into 3 ranges for Lotofácil)
-        range_size = (LOTTERY_MAX_NUMBER - LOTTERY_MIN_NUMBER + 1) // 3
+        range_size = (settings.lottery_max_number - settings.lottery_min_number + 1) // 3
         range_dist = {
-            f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}": 0,
-            f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}": 0,
+            f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}": 0,
+            f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}": 0,
+            f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}": 0,
         }
         
         for num in numbers:
-            if num < LOTTERY_MIN_NUMBER + range_size:
-                range_dist[f"{LOTTERY_MIN_NUMBER}-{LOTTERY_MIN_NUMBER + range_size - 1}"] += 1
-            elif num < LOTTERY_MIN_NUMBER + 2*range_size:
-                range_dist[f"{LOTTERY_MIN_NUMBER + range_size}-{LOTTERY_MIN_NUMBER + 2*range_size - 1}"] += 1
+            if num < settings.lottery_min_number + range_size:
+                range_dist[f"{settings.lottery_min_number}-{settings.lottery_min_number + range_size - 1}"] += 1
+            elif num < settings.lottery_min_number + 2*range_size:
+                range_dist[f"{settings.lottery_min_number + range_size}-{settings.lottery_min_number + 2*range_size - 1}"] += 1
             else:
-                range_dist[f"{LOTTERY_MIN_NUMBER + 2*range_size}-{LOTTERY_MAX_NUMBER}"] += 1
+                range_dist[f"{settings.lottery_min_number + 2*range_size}-{settings.lottery_max_number}"] += 1
         
         # Calculate quality score (0-1)
         # Based on balance of even/odd, hot/cold, and range distribution

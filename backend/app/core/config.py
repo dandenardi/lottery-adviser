@@ -46,6 +46,32 @@ class Settings(BaseSettings):
     lottery_max_number: int = Field(default=25, alias="LOTTERY_MAX_NUMBER")
     numbers_per_game: int = Field(default=15, alias="NUMBERS_PER_GAME")
     
+    # Data Directories (for standalone scripts)
+    data_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "data")
+    
+    # Strategy generation settings
+    default_suggestions_count: int = Field(default=3, alias="DEFAULT_SUGGESTIONS_COUNT")
+    recent_draws_window: int = Field(default=10, alias="RECENT_DRAWS_WINDOW")
+    
+    @property
+    def raw_data_dir(self) -> Path:
+        """Get raw data directory path."""
+        path = self.data_dir / "raw"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+    
+    @property
+    def processed_data_dir(self) -> Path:
+        """Get processed data directory path."""
+        path = self.data_dir / "processed"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+    
+    @property
+    def lottery_history_file(self) -> Path:
+        """Get default lottery history file path."""
+        return self.raw_data_dir / "loto_facil_asloterias_ate_concurso_3576_sorteio.xlsx"
+    
     # Scraper
     scraper_enabled: bool = Field(default=True, alias="SCRAPER_ENABLED")
     scraper_schedule_hour: int = Field(default=22, alias="SCRAPER_SCHEDULE_HOUR")

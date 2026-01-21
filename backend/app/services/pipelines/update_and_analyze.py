@@ -7,9 +7,9 @@ loading data, updating it (in future), and running analysis.
 
 from typing import Dict
 
-from app.analysis import LotteryStatisticsService
-from app.collectors import LotteryCollector
-from app.storage import LotteryHistoryRepository
+from app.services.analysis import LotteryStatisticsService
+from app.services.collectors import LotteryCollector
+from app.services.storage import LotteryHistoryRepository
 
 
 def run_pipeline() -> Dict[str, any]:

@@ -1,0 +1,167 @@
+{
+  "total_contests": 100,
+  "date_range": {
+    "first_draw": "2020-01-04 00:00:00",
+    "last_draw": "2020-10-27 00:00:00"
+  },
+  "number_frequencies": {
+    "21": 17,
+    "3": 17,
+    "38": 16,
+    "54": 16,
+    "52": 15,
+    "42": 15,
+    "23": 15,
+    "32": 15,
+    "15": 14,
+    "6": 14,
+    "46": 14,
+    "17": 13,
+    "56": 13,
+    "39": 13,
+    "55": 13,
+    "25": 13,
+    "26": 12,
+    "53": 12,
+    "22": 12,
+    "40": 12,
+    "58": 11,
+    "20": 11,
+    "24": 11,
+    "2": 11,
+    "7": 10,
+    "18": 10,
+    "27": 10,
+    "41": 10,
+    "36": 10,
+    "30": 9,
+    "29": 9,
+    "13": 9,
+    "4": 9,
+    "33": 9,
+    "47": 8,
+    "60": 8,
+    "9": 8,
+    "19": 8,
+    "37": 8,
+    "51": 8,
+    "35": 8,
+    "45": 8,
+    "44": 8,
+    "43": 8,
+    "49": 8,
+    "48": 7,
+    "34": 7,
+    "16": 7,
+    "1": 7,
+    "5": 7,
+    "12": 6,
+    "8": 6,
+    "57": 6,
+    "10": 6,
+    "11": 6,
+    "28": 6,
+    "50": 6,
+    "14": 5,
+    "31": 5,
+    "59": 5
+  },
+  "most_common_numbers": [
+    {
+      "number": 21,
+      "frequency": 17
+    },
+    {
+      "number": 3,
+      "frequency": 17
+    },
+    {
+      "number": 38,
+      "frequency": 16
+    },
+    {
+      "number": 54,
+      "frequency": 16
+    },
+    {
+      "number": 52,
+      "frequency": 15
+    },
+    {
+      "number": 42,
+      "frequency": 15
+    },
+    {
+      "number": 23,
+      "frequency": 15
+    },
+    {
+      "number": 32,
+      "frequency": 15
+    },
+    {
+      "number": 15,
+      "frequency": 14
+    },
+    {
+      "number": 6,
+      "frequency": 14
+    }
+  ],
+  "least_common_numbers": [
+    {
+      "number": 12,
+      "frequency": 6
+    },
+    {
+      "number": 8,
+      "frequency": 6
+    },
+    {
+      "number": 57,
+      "frequency": 6
+    },
+    {
+      "number": 10,
+      "frequency": 6
+    },
+    {
+      "number": 11,
+      "frequency": 6
+    },
+    {
+      "number": 28,
+      "frequency": 6
+    },
+    {
+      "number": 50,
+      "frequency": 6
+    },
+    {
+      "number": 14,
+      "frequency": 5
+    },
+    {
+      "number": 31,
+      "frequency": 5
+    },
+    {
+      "number": 59,
+      "frequency": 5
+    }
+  ],
+  "average_sum": 184.72,
+  "even_odd_distribution": {
+    "even": 308,
+    "odd": 292,
+    "even_percentage": 51.33,
+    "odd_percentage": 48.67
+  },
+  "number_range_distribution": {
+    "1-15": 135,
+    "16-30": 163,
+    "31-45": 152,
+    "46-60": 150
+  },
+  "total_numbers_analyzed": 600
+}

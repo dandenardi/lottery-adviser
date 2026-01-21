@@ -11,7 +11,7 @@ from typing import Dict
 
 import pandas as pd
 
-from app.config import LOTTERY_HISTORY_FILE
+from app.core.config import settings
 
 
 class LotteryHistoryRepository:
@@ -24,15 +24,15 @@ class LotteryHistoryRepository:
     - Appending new results without duplication
     """
 
-    def __init__(self, file_path: Path = LOTTERY_HISTORY_FILE):
+    def __init__(self, file_path: Path = None):
         """
         Initialize the repository.
         
         Args:
             file_path: Path to the Excel file containing lottery history.
-                      Defaults to the configured LOTTERY_HISTORY_FILE.
+                      Defaults to the configured lottery_history_file from settings.
         """
-        self.file_path = file_path
+        self.file_path = file_path or settings.lottery_history_file
 
     def load_history(self) -> pd.DataFrame:
         """
