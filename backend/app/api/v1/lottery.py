@@ -92,6 +92,11 @@ async def generate_suggestions(
     # Get statistics and history
     stats_service = LotteryStatisticsService(db)
     statistics = stats_service.compute_statistics()
+    
+    # Check if statistics computation was successful
+    if "error" in statistics:
+        raise HTTPException(status_code=404, detail=statistics["error"])
+    
     history = stats_service.get_history_dataframe()
     
     # Generate suggestions

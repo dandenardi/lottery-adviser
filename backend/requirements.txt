@@ -1,16 +1,16 @@
 # Core FastAPI dependencies
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-pydantic==2.5.3
-pydantic-settings==2.1.0
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+pydantic-settings==2.7.1
 
 # Database
-sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
+sqlalchemy==2.0.46
+psycopg2-binary==2.9.10
 alembic==1.13.1
 
 # Data processing (reuse from existing project)
-pandas==2.2.0
+pandas==2.2.3
 openpyxl==3.1.2
 requests==2.31.0
 

@@ -18,7 +18,7 @@ from app.models.lottery import LotteryResult
 
 def load_excel_data(file_path: str) -> pd.DataFrame:
     """Load lottery data from Excel file."""
-    print(f"📂 Loading data from {file_path}...")
+    print(f"Loading data from {file_path}...")
     
     # Try different skip rows (Lotofácil format)
     for skip in [6, 0]:
@@ -27,7 +27,7 @@ def load_excel_data(file_path: str) -> pd.DataFrame:
             df.columns = [str(col).strip().lower() for col in df.columns]
             
             if any('concurso' in col for col in df.columns):
-                print(f"✅ Found valid data with skiprows={skip}")
+                print(f"Found valid data with skiprows={skip}")
                 break
         except Exception:
             continue
@@ -38,13 +38,13 @@ def load_excel_data(file_path: str) -> pd.DataFrame:
             df.columns.values[i] = 'concurso'
             break
     
-    print(f"📊 Loaded {len(df)} contests")
+    print(f"Loaded {len(df)} contests")
     return df
 
 
 def migrate_data(df: pd.DataFrame, db: Session):
     """Migrate data from DataFrame to database."""
-    print("🔄 Migrating data to database...")
+    print("Migrating data to database...")
     
     # Identify number columns
     number_columns = [col for col in df.columns if 'bola' in str(col).lower()]
@@ -56,7 +56,7 @@ def migrate_data(df: pd.DataFrame, db: Session):
             if col not in ['concurso', 'data'] and pd.api.types.is_numeric_dtype(df[col])
         ]
     
-    print(f"📍 Found {len(number_columns)} number columns")
+    print(f"Found {len(number_columns)} number columns")
     
     migrated = 0
     skipped = 0
@@ -93,33 +93,33 @@ def migrate_data(df: pd.DataFrame, db: Session):
         migrated += 1
         
         if migrated % 100 == 0:
-            print(f"  ✓ Migrated {migrated} contests...")
+            print(f"  Migrated {migrated} contests...")
             db.commit()
     
     db.commit()
-    print(f"\n✅ Migration complete!")
-    print(f"   • Migrated: {migrated} contests")
-    print(f"   • Skipped (already exists): {skipped} contests")
+    print(f"\nMigration complete!")
+    print(f"   - Migrated: {migrated} contests")
+    print(f"   - Skipped (already exists): {skipped} contests")
 
 
 def main():
     """Main migration function."""
     print("\n" + "="*60)
-    print("  📊 LOTTERY DATA MIGRATION - Excel to PostgreSQL")
+    print("  LOTTERY DATA MIGRATION - Excel to PostgreSQL")
     print("="*60 + "\n")
     
     # Excel file path (adjust as needed)
-    excel_file = Path("../lottery-adviser/data/raw/loto_facil_asloterias_ate_concurso_3576_sorteio.xlsx")
+    excel_file = Path(__file__).parent.parent / "data" / "raw" / "loto_facil_asloterias_ate_concurso_3576_sorteio.xlsx"
     
     if not excel_file.exists():
-        print(f"❌ Error: Excel file not found at {excel_file}")
-        print("\n💡 Please update the file path in this script.")
+        print(f"Error: Excel file not found at {excel_file}")
+        print("\nPlease update the file path in this script.")
         sys.exit(1)
     
     # Create tables
-    print("🗄️  Creating database tables...")
+    print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
-    print("✅ Tables created\n")
+    print("Tables created\n")
     
     # Load data
     df = load_excel_data(str(excel_file))
@@ -131,7 +131,7 @@ def main():
     finally:
         db.close()
     
-    print("\n🎉 All done!\n")
+    print("\nAll done!\n")
 
 
 if __name__ == "__main__":

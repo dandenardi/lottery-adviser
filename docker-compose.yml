@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lottery-adviser-db
+    environment:
+      POSTGRES_USER: lottery_user
+      POSTGRES_PASSWORD: lottery_pass
+      POSTGRES_DB: lottery_adviser
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lottery_user -d lottery_adviser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
