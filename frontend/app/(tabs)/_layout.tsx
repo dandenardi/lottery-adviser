@@ -32,6 +32,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="suggestions"
+        options={{
+          title: "Sugestões",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="lightbulb-o" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="two"
         options={{
           title: "Estatísticas",

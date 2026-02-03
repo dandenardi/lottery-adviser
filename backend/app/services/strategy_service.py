@@ -100,20 +100,34 @@ class LotteryStrategyGenerator:
         hot_numbers = [item["number"] for item in self.statistics["most_common_numbers"]]
         
         # Take top numbers and add some randomness
-        selected = set(hot_numbers[:12])
-        selected = random.sample(list(selected), settings.numbers_per_game)
+        selected = set(hot_numbers[:min(12, len(hot_numbers))])
         
-        return sorted(selected)
+        # If we don't have enough hot numbers, fill with random
+        if len(selected) < settings.numbers_per_game:
+            all_numbers = set(range(settings.lottery_min_number, settings.lottery_max_number + 1))
+            remaining = list(all_numbers - selected)
+            selected.update(random.sample(remaining, settings.numbers_per_game - len(selected)))
+        else:
+            selected = set(random.sample(list(selected), settings.numbers_per_game))
+        
+        return sorted(list(selected))
     
     def _cold_numbers_strategy(self) -> List[int]:
         """Cold numbers strategy: Prioritize least frequently drawn numbers."""
         cold_numbers = [item["number"] for item in self.statistics["least_common_numbers"]]
         
         # Take least common numbers and add some randomness
-        selected = set(cold_numbers[:12])
-        selected = random.sample(list(selected), settings.numbers_per_game)
+        selected = set(cold_numbers[:min(12, len(cold_numbers))])
         
-        return sorted(selected)
+        # If we don't have enough cold numbers, fill with random
+        if len(selected) < settings.numbers_per_game:
+            all_numbers = set(range(settings.lottery_min_number, settings.lottery_max_number + 1))
+            remaining = list(all_numbers - selected)
+            selected.update(random.sample(remaining, settings.numbers_per_game - len(selected)))
+        else:
+            selected = set(random.sample(list(selected), settings.numbers_per_game))
+        
+        return sorted(list(selected))
     
     def _weighted_random_strategy(self) -> List[int]:
         """Weighted random strategy: Random selection weighted by historical frequency."""

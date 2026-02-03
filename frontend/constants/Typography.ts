@@ -45,46 +45,46 @@ export const TextStyles = {
   h1: {
     fontSize: Typography.sizes["4xl"],
     fontWeight: Typography.weights.bold,
-    lineHeight: Typography.lineHeights.tight,
+    lineHeight: Typography.sizes["4xl"] * Typography.lineHeights.tight, // 36 * 1.2 = 43.2
   },
   h2: {
     fontSize: Typography.sizes["3xl"],
     fontWeight: Typography.weights.bold,
-    lineHeight: Typography.lineHeights.tight,
+    lineHeight: Typography.sizes["3xl"] * Typography.lineHeights.tight, // 30 * 1.2 = 36
   },
   h3: {
     fontSize: Typography.sizes["2xl"],
     fontWeight: Typography.weights.semibold,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes["2xl"] * Typography.lineHeights.normal, // 24 * 1.5 = 36
   },
   h4: {
     fontSize: Typography.sizes.xl,
     fontWeight: Typography.weights.semibold,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes.xl * Typography.lineHeights.normal, // 20 * 1.5 = 30
   },
   body: {
     fontSize: Typography.sizes.base,
     fontWeight: Typography.weights.normal,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes.base * Typography.lineHeights.normal, // 16 * 1.5 = 24
   },
   bodyLarge: {
     fontSize: Typography.sizes.lg,
     fontWeight: Typography.weights.normal,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes.lg * Typography.lineHeights.normal, // 18 * 1.5 = 27
   },
   bodySmall: {
     fontSize: Typography.sizes.sm,
     fontWeight: Typography.weights.normal,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes.sm * Typography.lineHeights.normal, // 14 * 1.5 = 21
   },
   caption: {
     fontSize: Typography.sizes.xs,
     fontWeight: Typography.weights.normal,
-    lineHeight: Typography.lineHeights.normal,
+    lineHeight: Typography.sizes.xs * Typography.lineHeights.normal, // 12 * 1.5 = 18
   },
   button: {
     fontSize: Typography.sizes.base,
     fontWeight: Typography.weights.semibold,
-    lineHeight: Typography.lineHeights.tight,
+    lineHeight: Typography.sizes.base * Typography.lineHeights.tight, // 16 * 1.2 = 19.2
   },
 } as const;
