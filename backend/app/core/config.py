@@ -80,6 +80,17 @@ class Settings(BaseSettings):
         alias="SCRAPER_URL"
     )
     
+    # Scheduler
+    scheduler_enabled: bool = Field(default=True, alias="SCHEDULER_ENABLED")
+    scheduler_update_hour: int = Field(default=22, alias="SCHEDULER_UPDATE_HOUR")
+    scheduler_update_minute: int = Field(default=0, alias="SCHEDULER_UPDATE_MINUTE")
+    
+    # Caixa API
+    caixa_api_base_url: str = Field(
+        default="https://servicebus2.caixa.gov.br/portaldeloterias/api",
+        alias="CAIXA_API_BASE_URL"
+    )
+    
     # RevenueCat
     revenuecat_api_key: str | None = Field(default=None, alias="REVENUECAT_API_KEY")
     revenuecat_webhook_secret: str | None = Field(default=None, alias="REVENUECAT_WEBHOOK_SECRET")

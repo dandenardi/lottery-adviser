@@ -176,3 +176,80 @@ async def get_result_by_contest(
         raise HTTPException(status_code=404, detail=f"Contest {contest_number} not found")
     
     return result
+
+
+# Admin endpoints
+@router.post("/admin/update-results")
+async def trigger_update(db: Session = Depends(get_db)):
+    """
+    Manually trigger data update from Caixa API.
+    
+    This endpoint allows administrators to manually fetch the latest
+    lottery results from the Caixa API and update the database.
+    
+    Returns:
+        Update status and statistics
+    """
+    from app.services.data.lotofacil_fetcher import get_fetcher
+    
+    fetcher = get_fetcher()
+    result = await fetcher.update_database(db)
+    
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Update failed: {result.get('error')}"
+        )
+    
+    return {
+        "success": True,
+        "message": result.get("message"),
+        "contests_added": result.get("contests_added"),
+        "latest_contest": result.get("latest_contest"),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
+@router.get("/admin/data-status")
+async def get_data_status(db: Session = Depends(get_db)):
+    """
+    Check if database is up to date with Caixa API.
+    
+    Compares the latest contest in the database with the latest
+    contest available from the Caixa API.
+    
+    Returns:
+        Database status information
+    """
+    from app.services.data.lotofacil_fetcher import get_fetcher
+    
+    # Get latest from database
+    latest_db = db.query(LotteryResult).order_by(
+        desc(LotteryResult.contest_number)
+    ).first()
+    
+    # Get latest from API
+    fetcher = get_fetcher()
+    latest_api_result = await fetcher.fetch_latest_result()
+    
+    if not latest_api_result:
+        raise HTTPException(
+            status_code=503,
+            detail="Could not fetch data from Caixa API"
+        )
+    
+    latest_api_contest = latest_api_result.get("numero")
+    latest_db_contest = latest_db.contest_number if latest_db else 0
+    
+    is_up_to_date = latest_db_contest >= latest_api_contest
+    missing_contests = max(0, latest_api_contest - latest_db_contest)
+    
+    return {
+        "is_up_to_date": is_up_to_date,
+        "latest_in_database": latest_db_contest,
+        "latest_in_api": latest_api_contest,
+        "missing_contests": missing_contests,
+        "total_contests_in_db": db.query(LotteryResult).count(),
+        "last_update_check": datetime.utcnow().isoformat()
+    }
+

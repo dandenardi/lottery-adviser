@@ -29,14 +29,36 @@ async def lifespan(app: FastAPI):
     print(f"📊 Environment: {settings.environment}")
     print(f"🗄️  Database: Connected")
     
-    # TODO: Initialize scheduler for scraper
-    # if settings.scraper_enabled:
-    #     scheduler.start()
+    # Check and update lottery data
+    print("🔍 Checking lottery data...")
+    from app.core.database import SessionLocal
+    from app.services.data.lotofacil_fetcher import get_fetcher
+    
+    db = SessionLocal()
+    try:
+        fetcher = get_fetcher()
+        result = await fetcher.update_database(db)
+        if result.get("success"):
+            print(f"✅ {result.get('message')} (Latest: {result.get('latest_contest')})")
+        else:
+            print(f"⚠️  Data update warning: {result.get('error')}")
+    except Exception as e:
+        print(f"⚠️  Could not update lottery data: {e}")
+    finally:
+        db.close()
+    
+    # Start scheduler if enabled
+    if settings.scheduler_enabled:
+        from app.services.scheduler import start_scheduler
+        start_scheduler()
     
     yield
     
     # Shutdown
     print("👋 Shutting down...")
+    if settings.scheduler_enabled:
+        from app.services.scheduler import shutdown_scheduler
+        shutdown_scheduler()
 
 
 # Create FastAPI app
