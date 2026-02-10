@@ -15,6 +15,9 @@ O deploy utiliza o arquivo `render.yaml` (Infrastructure as Code) que automatica
 - **Web Service**: FastAPI rodando com Gunicorn + Uvicorn workers
 - **PostgreSQL Database**: Banco de dados gerenciado (1GB free tier)
 
+> [!IMPORTANT]
+> O `render.yaml` está configurado com `rootDir: backend` para que o Render execute os comandos dentro da pasta `backend/` do monorepo.
+
 ## Passo a Passo
 
 ### 1. Preparar o Repositório

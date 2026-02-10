@@ -9,6 +9,7 @@ services:
     region: oregon # Choose closest to your users
     plan: free # Start with free tier
     branch: main
+    rootDir: backend # Set working directory to backend folder
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
     envVars:
