@@ -189,7 +189,14 @@ Por padrão, o scheduler está **desabilitado** (`SCHEDULER_ENABLED=false`) no `
 
 ### CORS Configuration
 
-Atualmente configurado para aceitar **todas as origens** (`CORS_ORIGINS=*`) para facilitar testes.
+Atualmente configurado para aceitar **todas as origens** (`CORS_ORIGINS=["*"]`) para facilitar testes.
+
+> [!IMPORTANT]
+> O valor de `CORS_ORIGINS` deve ser um **array JSON válido** (formato string). Exemplos:
+>
+> - Wildcard: `CORS_ORIGINS='["*"]'`
+> - Múltiplas origens: `CORS_ORIGINS='["https://app.com","exp://expo-app"]'`
+> - Não use apenas `"*"` sem colchetes, isso causará erro de parsing.
 
 **Para produção**, atualize no Render Dashboard:
 

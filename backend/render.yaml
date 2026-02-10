@@ -33,7 +33,7 @@ services:
         value: 10000
       # CORS - Allow all origins during initial testing, update after frontend deploy
       - key: CORS_ORIGINS
-        value: "*"
+        value: '["*"]'
       # Rate Limiting
       - key: RATE_LIMIT_SUGGESTIONS_PER_DAY
         value: 3
