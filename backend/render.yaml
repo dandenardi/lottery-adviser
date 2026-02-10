@@ -26,18 +26,50 @@ services:
         value: production
       - key: DEBUG
         value: false
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      # CORS - Allow all origins during initial testing, update after frontend deploy
       - key: CORS_ORIGINS
-        value: https://your-app-url.com # Update with your React Native app URL
+        value: "*"
+      # Rate Limiting
       - key: RATE_LIMIT_SUGGESTIONS_PER_DAY
         value: 3
+      - key: RATE_LIMIT_PREMIUM_UNLIMITED
+        value: true
+      # Lottery Configuration
       - key: LOTTERY_MIN_NUMBER
         value: 1
       - key: LOTTERY_MAX_NUMBER
         value: 25
       - key: NUMBERS_PER_GAME
         value: 15
+      # Scheduler - Disabled on free tier due to sleep mode
+      - key: SCHEDULER_ENABLED
+        value: false
+      - key: SCHEDULER_UPDATE_HOUR
+        value: 22
+      - key: SCHEDULER_UPDATE_MINUTE
+        value: 0
+      # Scraper
+      - key: SCRAPER_ENABLED
+        value: true
+      - key: SCRAPER_SCHEDULE_HOUR
+        value: 22
+      - key: SCRAPER_URL
+        value: https://asloterias.com.br/download-todos-resultados-lotofacil
+      # Caixa API
+      - key: CAIXA_API_BASE_URL
+        value: https://servicebus2.caixa.gov.br/portaldeloterias/api
+      # Logging
       - key: LOG_LEVEL
         value: INFO
+      # RevenueCat (add these in Render Dashboard as they are sensitive)
+      # - key: REVENUECAT_API_KEY
+      #   sync: false
+      # - key: REVENUECAT_WEBHOOK_SECRET
+      #   sync: false
     healthCheckPath: /health
 
 databases:
