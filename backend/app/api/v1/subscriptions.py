@@ -9,7 +9,7 @@ from app.core.database import get_db
 from app.schemas.lottery import UpdateSubscriptionRequest, UserSubscriptionStatus
 from app.services.subscription_service import SubscriptionService
 
-router = APIRouter(prefix="/api/v1/subscriptions", tags=["subscriptions"])
+router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
 
 @router.get("/{user_id}", response_model=UserSubscriptionStatus)

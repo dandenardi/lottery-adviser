@@ -83,8 +83,8 @@ app.add_middleware(
 
 
 # Include routers
-app.include_router(lottery.router)
-app.include_router(subscriptions.router)
+app.include_router(lottery.router, prefix="/api/v1")
+app.include_router(subscriptions.router, prefix="/api/v1")
 
 
 # Root endpoint

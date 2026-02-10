@@ -22,7 +22,7 @@ from app.services.statistics_service import LotteryStatisticsService
 from app.services.strategy_service import LotteryStrategyGenerator
 from app.services.rate_limit_service import RateLimitService
 
-router = APIRouter(prefix="/api/v1", tags=["lottery"])
+router = APIRouter(tags=["lottery"])
 
 
 @router.get("/results/latest", response_model=LatestResultResponse)
