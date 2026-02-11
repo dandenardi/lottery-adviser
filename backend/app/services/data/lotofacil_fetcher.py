@@ -1,4 +1,4 @@
-"""Data fetching service for Lotofácil results from Caixa API."""
+"""Data fetching service for Lotofácil results from Caixa API with LottoLookup fallback."""
 
 import logging
 from datetime import datetime
@@ -15,19 +15,22 @@ logger = logging.getLogger(__name__)
 
 
 class LotofacilFetcher:
-    """Service to fetch Lotofácil results from Caixa Econômica Federal API."""
+    """Service to fetch Lotofácil results from Caixa Econômica Federal API with fallback."""
     
     def __init__(self):
         self.base_url = settings.caixa_api_base_url
+        self.fallback_url = "https://lottolookup.com.br/api"
         self.timeout = 30.0
     
     async def fetch_latest_result(self) -> Optional[Dict]:
         """
         Fetch the most recent Lotofácil contest result.
+        Tries Caixa API first, falls back to LottoLookup if blocked.
         
         Returns:
             Dict with contest data or None if request fails
         """
+        # Try Caixa API first
         url = f"{self.base_url}/lotofacil"
         
         try:
@@ -35,18 +38,39 @@ class LotofacilFetcher:
                 response = await client.get(url)
                 response.raise_for_status()
                 data = response.json()
-                logger.info(f"Fetched latest result: Contest {data.get('numero')}")
+                logger.info(f"Fetched latest result from Caixa: Contest {data.get('numero')}")
+                return data
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 403:
+                logger.warning("Caixa API blocked (403), trying LottoLookup fallback...")
+            else:
+                logger.error(f"HTTP error from Caixa: {e}")
+        except httpx.HTTPError as e:
+            logger.error(f"HTTP error fetching from Caixa: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error fetching from Caixa: {e}")
+        
+        # Fallback to LottoLookup
+        fallback_url = f"{self.fallback_url}/lotofacil/latest"
+        
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(fallback_url)
+                response.raise_for_status()
+                data = response.json()
+                logger.info(f"Fetched latest result from LottoLookup: Contest {data.get('numero')}")
                 return data
         except httpx.HTTPError as e:
-            logger.error(f"HTTP error fetching latest result: {e}")
+            logger.error(f"HTTP error fetching from LottoLookup: {e}")
             return None
         except Exception as e:
-            logger.error(f"Unexpected error fetching latest result: {e}")
+            logger.error(f"Unexpected error fetching from LottoLookup: {e}")
             return None
     
     async def fetch_contest(self, contest_number: int) -> Optional[Dict]:
         """
         Fetch a specific Lotofácil contest result.
+        Tries Caixa API first, falls back to LottoLookup if blocked.
         
         Args:
             contest_number: The contest number to fetch
@@ -54,6 +78,7 @@ class LotofacilFetcher:
         Returns:
             Dict with contest data or None if request fails
         """
+        # Try Caixa API first
         url = f"{self.base_url}/lotofacil/{contest_number}"
         
         try:
@@ -61,13 +86,33 @@ class LotofacilFetcher:
                 response = await client.get(url)
                 response.raise_for_status()
                 data = response.json()
-                logger.info(f"Fetched contest {contest_number}")
+                logger.info(f"Fetched contest {contest_number} from Caixa")
+                return data
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 403:
+                logger.warning(f"Caixa API blocked (403) for contest {contest_number}, trying LottoLookup...")
+            else:
+                logger.error(f"HTTP error from Caixa: {e}")
+        except httpx.HTTPError as e:
+            logger.error(f"HTTP error fetching contest {contest_number} from Caixa: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error fetching contest {contest_number} from Caixa: {e}")
+        
+        # Fallback to LottoLookup
+        fallback_url = f"{self.fallback_url}/lotofacil/{contest_number}"
+        
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(fallback_url)
+                response.raise_for_status()
+                data = response.json()
+                logger.info(f"Fetched contest {contest_number} from LottoLookup")
                 return data
         except httpx.HTTPError as e:
-            logger.error(f"HTTP error fetching contest {contest_number}: {e}")
+            logger.error(f"HTTP error fetching contest {contest_number} from LottoLookup: {e}")
             return None
         except Exception as e:
-            logger.error(f"Unexpected error fetching contest {contest_number}: {e}")
+            logger.error(f"Unexpected error fetching contest {contest_number} from LottoLookup: {e}")
             return None
     
     async def fetch_missing_contests(
@@ -177,7 +222,7 @@ class LotofacilFetcher:
             if not latest_api_result:
                 return {
                     "success": False,
-                    "error": "Failed to fetch latest result from API"
+                    "error": "Failed to fetch latest result from both Caixa and LottoLookup APIs"
                 }
             
             latest_api_contest = latest_api_result.get("numero")
