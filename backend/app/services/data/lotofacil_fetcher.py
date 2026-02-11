@@ -58,7 +58,7 @@ class LotofacilFetcher:
                 response = await client.get(fallback_url)
                 response.raise_for_status()
                 data = response.json()
-                logger.info(f"Fetched latest result from LottoLookup: Contest {data.get('numero')}")
+                logger.info(f"Fetched latest result from LottoLookup (FALLBACK_USED): Contest {data.get('numero')}")
                 return data
         except httpx.HTTPError as e:
             logger.error(f"HTTP error fetching from LottoLookup: {e}")
@@ -106,7 +106,7 @@ class LotofacilFetcher:
                 response = await client.get(fallback_url)
                 response.raise_for_status()
                 data = response.json()
-                logger.info(f"Fetched contest {contest_number} from LottoLookup")
+                logger.info(f"Fetched contest {contest_number} from LottoLookup (FALLBACK_USED)")
                 return data
         except httpx.HTTPError as e:
             logger.error(f"HTTP error fetching contest {contest_number} from LottoLookup: {e}")
@@ -131,6 +131,10 @@ class LotofacilFetcher:
             List of contest data dictionaries
         """
         results = []
+        import asyncio
+        
+        total_to_fetch = to_contest - from_contest + 1
+        logger.info(f"Fetching {total_to_fetch} missing contests ({from_contest} to {to_contest})...")
         
         for contest_num in range(from_contest, to_contest + 1):
             data = await self.fetch_contest(contest_num)
@@ -138,8 +142,12 @@ class LotofacilFetcher:
                 results.append(data)
             else:
                 logger.warning(f"Failed to fetch contest {contest_num}")
+            
+            # small delay to avoid rate limiting
+            if contest_num < to_contest:
+                await asyncio.sleep(0.5)
         
-        logger.info(f"Fetched {len(results)} contests from {from_contest} to {to_contest}")
+        logger.info(f"Successfully fetched {len(results)}/{total_to_fetch} contests")
         return results
     
     def save_result_to_db(self, result_data: Dict, db: Session) -> bool:

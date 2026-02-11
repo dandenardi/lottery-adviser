@@ -2,57 +2,51 @@
 Update and Analyze Pipeline - Main orchestration logic.
 
 This module provides the main pipeline function that orchestrates
-loading data, updating it (in future), and running analysis.
+loading data, updating it, and running analysis.
 """
 
 from typing import Dict
+import asyncio
 
-from app.services.analysis import LotteryStatisticsService
-from app.services.collectors import LotteryCollector
-from app.services.storage import LotteryHistoryRepository
+from app.services.statistics_service import LotteryStatisticsService
+from app.services.data.lotofacil_fetcher import get_fetcher
+from app.core.database import SessionLocal
 
 
-def run_pipeline() -> Dict[str, any]:
+async def run_pipeline() -> Dict[str, any]:
     """
     Execute the main lottery analysis pipeline.
     
     This function orchestrates the entire workflow:
-    1. Load historical data from storage
-    2. (Future) Fetch latest result and update dataset if needed
-    3. Run statistical analysis
-    4. Return results
+    1. Fetch latest results from API and update database
+    2. Run statistical analysis from database
+    3. Return results
     
     Returns:
         dict: Statistical analysis results from the LotteryStatisticsService.
-    
-    Raises:
-        FileNotFoundError: If the historical data file is not found.
-        ValueError: If the data is invalid or empty.
     """
-    # Initialize components
-    repository = LotteryHistoryRepository()
-    statistics_service = LotteryStatisticsService()
-    collector = LotteryCollector()  # Not used yet, but initialized for future use
+    db = SessionLocal()
+    try:
+        # Step 1: Fetch and update with latest results
+        print("Checking for new lottery results...")
+        fetcher = get_fetcher()
+        update_result = await fetcher.update_database(db)
+        
+        if update_result.get("success"):
+            if update_result.get("contests_added", 0) > 0:
+                print(f"Update successful: {update_result.get('message')}")
+            else:
+                print("Database is already up to date")
+        else:
+            print(f"Warning: Could not update database: {update_result.get('error')}")
+            print("Proceeding with existing data...")
 
-    # Step 1: Load historical data
-    print("Loading historical lottery data...")
-    history = repository.load_history()
-    print(f"✓ Loaded {len(history)} contests from history")
+        # Step 2: Run statistical analysis
+        print("\nComputing statistics from database...")
+        statistics_service = LotteryStatisticsService(db)
+        stats = statistics_service.compute_statistics()
+        print("Statistics computed successfully")
 
-    # Step 2: (Future) Fetch and update with latest result
-    # This will be implemented in a future milestone
-    # try:
-    #     latest_result = collector.fetch_latest_result()
-    #     if not repository.has_concurso(latest_result["concurso"]):
-    #         repository.append_result(latest_result)
-    #         print(f"✓ Added new contest: {latest_result['concurso']}")
-    #         history = repository.load_history()  # Reload with new data
-    # except NotImplementedError:
-    #     print("⚠ Skipping update - scraping not implemented yet")
-
-    # Step 3: Run statistical analysis
-    print("\nComputing statistics...")
-    stats = statistics_service.compute_statistics(history)
-    print("✓ Statistics computed successfully")
-
-    return stats
+        return stats
+    finally:
+        db.close()

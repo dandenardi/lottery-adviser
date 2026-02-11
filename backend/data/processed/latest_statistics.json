@@ -1,167 +1,131 @@
 {
-  "total_contests": 100,
+  "total_contests": 3610,
   "date_range": {
-    "first_draw": "2020-01-04 00:00:00",
-    "last_draw": "2020-10-27 00:00:00"
+    "first_draw": "2003-01-12",
+    "last_draw": "2026-02-10"
   },
   "number_frequencies": {
-    "21": 17,
-    "3": 17,
-    "38": 16,
-    "54": 16,
-    "52": 15,
-    "42": 15,
-    "23": 15,
-    "32": 15,
-    "15": 14,
-    "6": 14,
-    "46": 14,
-    "17": 13,
-    "56": 13,
-    "39": 13,
-    "55": 13,
-    "25": 13,
-    "26": 12,
-    "53": 12,
-    "22": 12,
-    "40": 12,
-    "58": 11,
-    "20": 11,
-    "24": 11,
-    "2": 11,
-    "7": 10,
-    "18": 10,
-    "27": 10,
-    "41": 10,
-    "36": 10,
-    "30": 9,
-    "29": 9,
-    "13": 9,
-    "4": 9,
-    "33": 9,
-    "47": 8,
-    "60": 8,
-    "9": 8,
-    "19": 8,
-    "37": 8,
-    "51": 8,
-    "35": 8,
-    "45": 8,
-    "44": 8,
-    "43": 8,
-    "49": 8,
-    "48": 7,
-    "34": 7,
-    "16": 7,
-    "1": 7,
-    "5": 7,
-    "12": 6,
-    "8": 6,
-    "57": 6,
-    "10": 6,
-    "11": 6,
-    "28": 6,
-    "50": 6,
-    "14": 5,
-    "31": 5,
-    "59": 5
+    "20": 2258,
+    "10": 2239,
+    "25": 2239,
+    "11": 2218,
+    "13": 2198,
+    "24": 2193,
+    "14": 2188,
+    "1": 2187,
+    "4": 2184,
+    "3": 2175,
+    "12": 2173,
+    "22": 2165,
+    "5": 2165,
+    "2": 2164,
+    "15": 2153,
+    "9": 2153,
+    "19": 2152,
+    "18": 2147,
+    "21": 2146,
+    "7": 2132,
+    "17": 2126,
+    "6": 2118,
+    "23": 2113,
+    "8": 2098,
+    "16": 2066
   },
   "most_common_numbers": [
     {
-      "number": 21,
-      "frequency": 17
+      "number": 20,
+      "frequency": 2258
+    },
+    {
+      "number": 10,
+      "frequency": 2239
+    },
+    {
+      "number": 25,
+      "frequency": 2239
+    },
+    {
+      "number": 11,
+      "frequency": 2218
+    },
+    {
+      "number": 13,
+      "frequency": 2198
+    },
+    {
+      "number": 24,
+      "frequency": 2193
+    },
+    {
+      "number": 14,
+      "frequency": 2188
+    },
+    {
+      "number": 1,
+      "frequency": 2187
+    },
+    {
+      "number": 4,
+      "frequency": 2184
     },
     {
       "number": 3,
-      "frequency": 17
-    },
-    {
-      "number": 38,
-      "frequency": 16
-    },
-    {
-      "number": 54,
-      "frequency": 16
-    },
-    {
-      "number": 52,
-      "frequency": 15
-    },
-    {
-      "number": 42,
-      "frequency": 15
-    },
-    {
-      "number": 23,
-      "frequency": 15
-    },
-    {
-      "number": 32,
-      "frequency": 15
-    },
-    {
-      "number": 15,
-      "frequency": 14
-    },
-    {
-      "number": 6,
-      "frequency": 14
+      "frequency": 2175
     }
   ],
   "least_common_numbers": [
     {
-      "number": 12,
-      "frequency": 6
+      "number": 9,
+      "frequency": 2153
+    },
+    {
+      "number": 19,
+      "frequency": 2152
+    },
+    {
+      "number": 18,
+      "frequency": 2147
+    },
+    {
+      "number": 21,
+      "frequency": 2146
+    },
+    {
+      "number": 7,
+      "frequency": 2132
+    },
+    {
+      "number": 17,
+      "frequency": 2126
+    },
+    {
+      "number": 6,
+      "frequency": 2118
+    },
+    {
+      "number": 23,
+      "frequency": 2113
     },
     {
       "number": 8,
-      "frequency": 6
+      "frequency": 2098
     },
     {
-      "number": 57,
-      "frequency": 6
-    },
-    {
-      "number": 10,
-      "frequency": 6
-    },
-    {
-      "number": 11,
-      "frequency": 6
-    },
-    {
-      "number": 28,
-      "frequency": 6
-    },
-    {
-      "number": 50,
-      "frequency": 6
-    },
-    {
-      "number": 14,
-      "frequency": 5
-    },
-    {
-      "number": 31,
-      "frequency": 5
-    },
-    {
-      "number": 59,
-      "frequency": 5
+      "number": 16,
+      "frequency": 2066
     }
   ],
-  "average_sum": 184.72,
+  "average_sum": 195.16703601108034,
   "even_odd_distribution": {
-    "even": 308,
-    "odd": 292,
-    "even_percentage": 51.33,
-    "odd_percentage": 48.67
+    "even": 25993,
+    "odd": 28157,
+    "even_percentage": 48.0,
+    "odd_percentage": 52.0
   },
   "number_range_distribution": {
-    "1-15": 135,
-    "16-30": 163,
-    "31-45": 152,
-    "46-60": 150
+    "1-8": 17223,
+    "9-16": 17388,
+    "17-25": 19539
   },
-  "total_numbers_analyzed": 600
+  "total_numbers_analyzed": 54150
 }
