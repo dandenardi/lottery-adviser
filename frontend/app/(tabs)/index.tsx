@@ -14,6 +14,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
 import { ResultCard } from "@/components/lottery/ResultCard";
 import { StatCard } from "@/components/lottery/StatCard";
+import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing } from "@/constants/Layout";
 import { TextStyles } from "@/constants/Typography";
@@ -72,6 +73,9 @@ export default function HomeScreen() {
         />
       }
     >
+      {/* Gambling Policy Disclaimer Banner */}
+      <DisclaimerBanner />
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🍀 Lottery Adviser</Text>

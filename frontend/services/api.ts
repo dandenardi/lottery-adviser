@@ -55,7 +55,7 @@ class LotteryAPI {
   constructor() {
     this.client = axios.create({
       baseURL: `${API_BASE_URL}${API_PREFIX}`,
-      timeout: 10000,
+      timeout: 30000, // 30s para lidar com cold start do Render (free tier)
       headers: {
         "Content-Type": "application/json",
       },

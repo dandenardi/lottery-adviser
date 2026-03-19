@@ -1,0 +1,44 @@
+{
+  "cli": {
+    "version": ">= 18.0.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "http://localhost:5000",
+        "EXPO_PUBLIC_API_BASE_URL_MOBILE": "http://192.168.0.109:5000"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://lottery-adviser-api.onrender.com",
+        "EXPO_PUBLIC_API_BASE_URL_MOBILE": "https://lottery-adviser-api.onrender.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://lottery-adviser-api.onrender.com",
+        "EXPO_PUBLIC_API_BASE_URL_MOBILE": "https://lottery-adviser-api.onrender.com"
+      }
+    }
+  },
+  "submit": {
+    "preview": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
+      }
+    },
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "production"
+      }
+    }
+  }
+}

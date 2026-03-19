@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { revenueCat } from "@/services/revenuecat";
+import { GamblingDisclaimerModal } from "@/components/ui/GamblingDisclaimerModal";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -67,6 +68,8 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {/* Gambling policy consent modal — shown once on first run */}
+      <GamblingDisclaimerModal />
       <RootLayoutNav />
     </QueryClientProvider>
   );
@@ -80,6 +83,10 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen
+          name="disclaimer"
+          options={{ title: "Aviso Legal", headerBackTitle: "Voltar" }}
+        />
       </Stack>
     </ThemeProvider>
   );

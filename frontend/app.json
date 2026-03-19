@@ -37,8 +37,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "lottery-adviser"
-      }
+        "projectId": "96e61f0e-538e-44ae-854d-6e6e9f40fb6b"
+      },
+      "router": {}
     }
   }
 }

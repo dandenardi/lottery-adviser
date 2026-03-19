@@ -3,6 +3,7 @@ import { StyleSheet, ScrollView, View, Text, Alert } from "react-native";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing } from "@/constants/Layout";
 import { TextStyles } from "@/constants/Typography";
@@ -72,6 +73,9 @@ export default function SuggestionsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Gambling Policy Disclaimer Banner */}
+      <DisclaimerBanner />
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🎲 Gerar Sugestões</Text>
@@ -122,6 +126,17 @@ export default function SuggestionsScreen() {
       {suggestions && !loading && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Suas Sugestões</Text>
+
+          {/* Inline disclaimer required by Google Play gambling policy */}
+          <View style={styles.inlineDisclaimer}>
+            <Text style={styles.inlineDisclaimerText}>
+              ⚠️ Sugestões baseadas em análise estatística histórica. Os
+              resultados da loteria são aleatórios —{" "}
+              <Text style={styles.inlineDisclaimerBold}>
+                nenhum método garante premiação.
+              </Text>
+            </Text>
+          </View>
           {suggestions.map((suggestion, index) => (
             <Card
               key={index}
@@ -215,6 +230,22 @@ const styles = StyleSheet.create({
   numberText: {
     ...TextStyles.body,
     color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  inlineDisclaimer: {
+    backgroundColor: "#FFFBEB",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    padding: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  inlineDisclaimerText: {
+    ...TextStyles.bodySmall,
+    color: "#92400E",
+    lineHeight: 20,
+  },
+  inlineDisclaimerBold: {
     fontWeight: "700",
   },
 });
