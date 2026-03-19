@@ -96,3 +96,6 @@ packages/shared/data/*.csv
 packages/shared/data/*.json
 # Keep the Excel file
 !packages/shared/data/loto_facil_asloterias_ate_concurso_3576_sorteio.xlsx
+
+# Secrets
+secrets/

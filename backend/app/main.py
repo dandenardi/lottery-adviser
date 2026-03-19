@@ -25,12 +25,12 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events.
     """
     # Startup
-    print(f"🚀 Starting {settings.app_name} v{settings.app_version}")
-    print(f"📊 Environment: {settings.environment}")
-    print(f"🗄️  Database: Connected")
+    print(f"Starting {settings.app_name} v{settings.app_version}")
+    print(f"Environment: {settings.environment}")
+    print(f"Database: Connected")
     
     # Check and update lottery data
-    print("🔍 Checking lottery data...")
+    print("Checking lottery data...")
     from app.core.database import SessionLocal
     from app.services.data.lotofacil_fetcher import get_fetcher
     
@@ -39,11 +39,11 @@ async def lifespan(app: FastAPI):
         fetcher = get_fetcher()
         result = await fetcher.update_database(db)
         if result.get("success"):
-            print(f"✅ {result.get('message')} (Latest: {result.get('latest_contest')})")
+            print(f"Update: {result.get('message')} (Latest: {result.get('latest_contest')})")
         else:
-            print(f"⚠️  Data update warning: {result.get('error')}")
+            print(f"Data update warning: {result.get('error')}")
     except Exception as e:
-        print(f"⚠️  Could not update lottery data: {e}")
+        print(f"Could not update lottery data: {e}")
     finally:
         db.close()
     
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    print("👋 Shutting down...")
+    print("Shutting down...")
     if settings.scheduler_enabled:
         from app.services.scheduler import shutdown_scheduler
         shutdown_scheduler()
