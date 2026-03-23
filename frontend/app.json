@@ -23,6 +23,7 @@
         "backgroundColor": "#10B981"
       },
       "package": "com.lotteryadviser.app",
+      "permissions": ["INTERNET"],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },

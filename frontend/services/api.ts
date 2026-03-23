@@ -26,23 +26,34 @@ import { Platform } from "react-native";
 // Automatically select the correct API URL based on platform
 const getApiBaseUrl = (): string => {
   if (Platform.OS === "web") {
-    return process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    return (
+      process.env.EXPO_PUBLIC_API_BASE_URL ||
+      "https://lottery-adviser-api.onrender.com"
+    );
   }
 
-  // For mobile (Android/iOS) - use network IP from env
-  // This works for both Expo Go and emulators when backend binds to 0.0.0.0
+  // For mobile (Android/iOS)
+  // 1. Try mobile-specific env var (usually for dev/local)
+  // 2. Try generic base URL (usually for prod)
+  // 3. Fallback to production Render URL (SAFEST for APKs)
   return (
-    process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE || "http://192.168.0.107:5000"
+    process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE ||
+    process.env.EXPO_PUBLIC_API_BASE_URL ||
+    "https://lottery-adviser-api.onrender.com"
   );
 };
 
 const API_BASE_URL = getApiBaseUrl();
 const API_PREFIX = "/api/v1";
 
-// Debug: Log the API URL being used
+// CRITICAL: Always log the API URL being used to help debug production APKs
+console.log(`[API Config] Using base URL: ${API_BASE_URL}${API_PREFIX}`);
+
 if (__DEV__) {
-  console.log(`[API Config] Using base URL: ${API_BASE_URL}${API_PREFIX}`);
   console.log(`[API Config] Platform: ${Platform.OS}`);
+  console.log(`[API Config] Environment: Development`);
+} else {
+  console.log(`[API Config] Environment: Production/Release`);
 }
 
 // ============================================================================
@@ -100,13 +111,16 @@ class LotteryAPI {
    * Handle API errors and transform them into a consistent format
    */
   private handleError(error: AxiosError<APIError>): Error {
+    const url = error.config?.url || "unknown";
+    const fullUrl = `${this.client.defaults.baseURL}${url}`;
+    
     if (error.response) {
       // Server responded with error status
       const message = error.response.data?.detail || "An error occurred";
-      return new Error(message);
+      return new Error(`${message} (Status: ${error.response.status})`);
     } else if (error.request) {
       // Request made but no response received
-      return new Error("Network error. Please check your connection.");
+      return new Error(`Network error. Failed to reach: ${fullUrl}. Please check your connection and ensure the server is up.`);
     } else {
       // Something else happened
       return new Error(error.message || "An unexpected error occurred");
