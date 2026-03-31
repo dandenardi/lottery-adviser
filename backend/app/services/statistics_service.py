@@ -80,11 +80,11 @@ class LotteryStatisticsService:
         # Date range
         if "data" in history.columns:
             date_range = {
-                "first_draw": str(history["data"].min()),
-                "last_draw": str(history["data"].max()),
+                "start": str(history["data"].min()),
+                "end": str(history["data"].max()),
             }
         else:
-            date_range = {"first_draw": "N/A", "last_draw": "N/A"}
+            date_range = {"start": "N/A", "end": "N/A"}
 
         # Number frequency analysis
         all_numbers = []

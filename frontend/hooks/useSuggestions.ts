@@ -8,6 +8,7 @@ import { getDeviceId } from "@/services/storage";
 import type {
   GenerateSuggestionsRequest,
   GenerateSuggestionsResponse,
+  AdRewardResponse,
   StrategyType,
 } from "@/types/api";
 
@@ -19,7 +20,7 @@ interface GenerateSuggestionsParams {
 export function useSuggestions() {
   const queryClient = useQueryClient();
 
-  return useMutation<
+  const mutation = useMutation<
     GenerateSuggestionsResponse,
     Error,
     GenerateSuggestionsParams
@@ -36,7 +37,9 @@ export function useSuggestions() {
       return api.generateSuggestions(request);
     },
     onSuccess: (data) => {
-      // Optionally invalidate related queries
+      // Invalidate the premium status query to keep everything in sync
+      queryClient.invalidateQueries({ queryKey: ["premium-status"] });
+      
       if (__DEV__) {
         console.log("[useSuggestions] Generated suggestions:", data);
       }
@@ -45,4 +48,22 @@ export function useSuggestions() {
       console.error("[useSuggestions] Error:", error);
     },
   });
+
+  const claimReward = useMutation<AdRewardResponse, Error, void>({
+    mutationFn: async () => {
+      const deviceId = await getDeviceId();
+      return api.claimAdReward({ user_id: deviceId });
+    },
+    onSuccess: () => {
+      // Refresh any data if needed
+      if (__DEV__) {
+        console.log("[useSuggestions] Reward claimed successfully");
+      }
+    },
+  });
+
+  return {
+    ...mutation,
+    claimReward,
+  };
 }

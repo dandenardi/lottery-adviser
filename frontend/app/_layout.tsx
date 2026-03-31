@@ -12,8 +12,9 @@ import "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { revenueCat } from "@/services/revenuecat";
+import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { GamblingDisclaimerModal } from "@/components/ui/GamblingDisclaimerModal";
+import { revenueCat } from "@/services/revenuecat";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -68,9 +69,11 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Gambling policy consent modal — shown once on first run */}
-      <GamblingDisclaimerModal />
-      <RootLayoutNav />
+      <SubscriptionProvider>
+        {/* Gambling policy consent modal — shown once on first run */}
+        <GamblingDisclaimerModal />
+        <RootLayoutNav />
+      </SubscriptionProvider>
     </QueryClientProvider>
   );
 }

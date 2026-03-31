@@ -51,3 +51,6 @@ htmlcov/
 
 # Google Play credentials (NEVER commit this!)
 frontend/google-play-service-account.json
+
+# Agents and Skills
+.agent/

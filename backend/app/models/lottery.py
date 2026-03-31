@@ -35,12 +35,13 @@ class UserSuggestionUsage(Base):
     user_id = Column(String, index=True, nullable=False)  # Device ID or user ID
     date = Column(Date, nullable=False, index=True)
     suggestions_count = Column(Integer, default=0)
+    rewarded_suggestions_count = Column(Integer, default=0)
     is_premium = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
-        return f"<UserSuggestionUsage(user={self.user_id}, date={self.date}, count={self.suggestions_count})>"
+        return f"<UserSuggestionUsage(user={self.user_id}, date={self.date}, count={self.suggestions_count}, rewarded={self.rewarded_suggestions_count})>"
 
 
 class UserSubscription(Base):

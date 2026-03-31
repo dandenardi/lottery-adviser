@@ -14,6 +14,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
 import { ResultCard } from "@/components/lottery/ResultCard";
 import { StatCard } from "@/components/lottery/StatCard";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing } from "@/constants/Layout";
@@ -154,6 +155,9 @@ export default function HomeScreen() {
           style={styles.ctaButton}
         />
       </View>
+      
+      {/* Ad Banner at the bottom */}
+      <AdBanner />
     </ScrollView>
   );
 }

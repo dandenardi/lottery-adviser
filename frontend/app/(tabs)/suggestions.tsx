@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { StyleSheet, ScrollView, View, Text, Alert } from "react-native";
+import { router } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useSuggestions } from "@/hooks/useSuggestions";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing } from "@/constants/Layout";
@@ -12,7 +14,6 @@ import { StrategyType } from "@/types/api";
 import type { GenerateSuggestionsRequest, Suggestion } from "@/types/api";
 
 export default function SuggestionsScreen() {
-  const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyType>(
     StrategyType.BALANCED,
@@ -50,26 +51,52 @@ export default function SuggestionsScreen() {
     },
   ];
 
+  const {
+    mutateAsync: generateSuggestions,
+    isPending: loadingSuggestions,
+    data: lastResponse,
+    claimReward,
+  } = useSuggestions();
+
   const handleGenerateSuggestions = async () => {
     try {
-      setLoading(true);
-      const request: GenerateSuggestionsRequest = {
+      const response = await generateSuggestions({
         strategy: selectedStrategy,
         count: 3,
-        user_id: "demo_user", // TODO: Replace with actual user ID from auth
-      };
-
-      const response = await api.generateSuggestions(request);
+      });
       setSuggestions(response.suggestions);
     } catch (error) {
-      Alert.alert(
-        "Erro",
-        error instanceof Error ? error.message : "Erro ao gerar sugestões",
-      );
-    } finally {
-      setLoading(false);
+      // If error is 429, it will be handled by the UI (showing the reward button)
+      if (!(error instanceof Error && error.message.includes("429"))) {
+        Alert.alert(
+          "Erro",
+          error instanceof Error ? error.message : "Erro ao gerar sugestões",
+        );
+      }
     }
   };
+
+  const handleWatchAd = async () => {
+    try {
+      // Mock ad delay
+      Alert.alert("Assistindo Anúncio", "Aguarde o vídeo terminar para ganhar sua recompensa...", []);
+      
+      setTimeout(async () => {
+        try {
+          await claimReward.mutateAsync();
+          Alert.alert("Sucesso!", "Você ganhou +1 sugestão extra para hoje!");
+        } catch (error) {
+          Alert.alert("Erro", "Falha ao resgatar recompensa.");
+        }
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const remaining = lastResponse?.remaining_today ?? 3;
+  const rewardedRemaining = lastResponse?.rewarded_remaining ?? 0;
+  const isPremium = lastResponse?.is_premium ?? false;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -82,6 +109,14 @@ export default function SuggestionsScreen() {
         <Text style={styles.subtitle}>
           Escolha uma estratégia e gere suas sugestões
         </Text>
+        
+        {!isPremium && (
+          <View style={styles.usageContainer}>
+            <Text style={styles.usageText}>
+              Sugestões restantes hoje: <Text style={styles.usageCount}>{remaining + rewardedRemaining}</Text>
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Strategy Selection */}
@@ -109,21 +144,41 @@ export default function SuggestionsScreen() {
         ))}
       </View>
 
-      {/* Generate Button */}
-      <Button
-        title="Gerar Sugestões"
-        onPress={handleGenerateSuggestions}
-        loading={loading}
-        disabled={loading}
-        size="large"
-        fullWidth
-        style={styles.generateButton}
-      />
+      {/* Generate Button / Reward Button */}
+      {remaining + rewardedRemaining > 0 || isPremium ? (
+        <Button
+          title="Gerar Sugestões"
+          onPress={handleGenerateSuggestions}
+          loading={loadingSuggestions}
+          disabled={loadingSuggestions}
+          size="large"
+          fullWidth
+          style={styles.generateButton}
+        />
+      ) : (
+        <View style={styles.limitContainer}>
+          <Text style={styles.limitText}>Limite diário atingido!</Text>
+          <Button
+            title="📺 Assistir vídeo para ganhar +1"
+            onPress={handleWatchAd}
+            loading={claimReward.isPending}
+            variant="secondary"
+            fullWidth
+            style={styles.rewardButton}
+          />
+          <Button
+            title="⭐ Seja Premium (Ilimitado)"
+            onPress={() => router.push("/modal")}
+            variant="outline"
+            fullWidth
+          />
+        </View>
+      )}
 
       {/* Results */}
-      {loading && <LoadingSpinner text="Gerando sugestões..." />}
+      {loadingSuggestions && <LoadingSpinner text="Gerando sugestões..." />}
 
-      {suggestions && !loading && (
+      {suggestions && !loadingSuggestions && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Suas Sugestões</Text>
 
@@ -247,5 +302,40 @@ const styles = StyleSheet.create({
   },
   inlineDisclaimerBold: {
     fontWeight: "700",
+  },
+  usageContainer: {
+    backgroundColor: "#F0F9FF",
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: 20,
+    marginTop: Spacing.md,
+    borderWidth: 1,
+    borderColor: "#BAE6FD",
+  },
+  usageText: {
+    ...TextStyles.bodySmall,
+    color: "#0369A1",
+    fontWeight: "600",
+  },
+  usageCount: {
+    ...TextStyles.h4,
+    color: Colors.light.primary,
+  },
+  limitContainer: {
+    padding: Spacing.lg,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    alignItems: "center",
+    marginBottom: Spacing.xl,
+  },
+  limitText: {
+    ...TextStyles.h4,
+    color: "#991B1B",
+    marginBottom: Spacing.md,
+  },
+  rewardButton: {
+    marginBottom: Spacing.sm,
   },
 });
