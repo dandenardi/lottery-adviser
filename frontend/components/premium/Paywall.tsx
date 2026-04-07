@@ -76,6 +76,16 @@ export function Paywall({
     }
   };
 
+  const getTranslatedPlanName = (pkg: PurchasesPackage) => {
+    const title = pkg.product.title;
+    // Common store titles that might come in English during sandbox testing
+    if (title.toLowerCase().includes("monthly")) return "Mensal";
+    if (title.toLowerCase().includes("annual")) return "Anual";
+    if (title.toLowerCase().includes("yearly")) return "Anual";
+    if (title.toLowerCase().includes("weekly")) return "Semanal";
+    return title;
+  };
+
   return (
     <Modal
       visible={visible}
@@ -134,7 +144,7 @@ export function Paywall({
                     </View>
                   )}
 
-                  <Text style={styles.planName}>{pkg.product.title}</Text>
+                  <Text style={styles.planName}>{getTranslatedPlanName(pkg)}</Text>
                   <Text style={styles.planPrice}>{pkg.product.priceString}</Text>
                   <Text style={styles.planPeriod}>
                     {pkg.packageType === "MONTHLY" ? "por mês" : 

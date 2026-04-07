@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useSuggestions } from "@/hooks/useSuggestions";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing } from "@/constants/Layout";
 import { TextStyles } from "@/constants/Typography";
@@ -78,8 +79,12 @@ export default function SuggestionsScreen() {
 
   const handleWatchAd = async () => {
     try {
-      // Mock ad delay
-      Alert.alert("Assistindo Anúncio", "Aguarde o vídeo terminar para ganhar sua recompensa...", []);
+      // Mock ad delay for the user experience of "watching"
+      Alert.alert(
+        "Assistindo Anúncio", 
+        "Aguarde o vídeo terminar para ganhar sua recompensa...", 
+        [] // No buttons to prevent closing early in this mock
+      );
       
       setTimeout(async () => {
         try {
@@ -158,6 +163,9 @@ export default function SuggestionsScreen() {
       ) : (
         <View style={styles.limitContainer}>
           <Text style={styles.limitText}>Limite diário atingido!</Text>
+          <Text style={styles.limitSubtitle}>
+            Torne-se Premium para ter sugestões ilimitadas ou assista a um vídeo para ganhar mais uma.
+          </Text>
           <Button
             title="📺 Assistir vídeo para ganhar +1"
             onPress={handleWatchAd}
@@ -211,6 +219,9 @@ export default function SuggestionsScreen() {
           ))}
         </View>
       )}
+
+      {/* Ad Banner for Free Users */}
+      <AdBanner />
     </ScrollView>
   );
 }
@@ -300,9 +311,6 @@ const styles = StyleSheet.create({
     color: "#92400E",
     lineHeight: 20,
   },
-  inlineDisclaimerBold: {
-    fontWeight: "700",
-  },
   usageContainer: {
     backgroundColor: "#F0F9FF",
     paddingVertical: Spacing.sm,
@@ -333,9 +341,19 @@ const styles = StyleSheet.create({
   limitText: {
     ...TextStyles.h4,
     color: "#991B1B",
+    marginBottom: Spacing.xs,
+  },
+  limitSubtitle: {
+    ...TextStyles.bodySmall,
+    color: "#991B1B",
+    textAlign: "center",
     marginBottom: Spacing.md,
+    opacity: 0.8,
   },
   rewardButton: {
     marginBottom: Spacing.sm,
+  },
+  inlineDisclaimerBold: {
+    fontWeight: "700",
   },
 });

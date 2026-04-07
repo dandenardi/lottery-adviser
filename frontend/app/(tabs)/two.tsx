@@ -13,6 +13,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { StatCard } from "@/components/lottery/StatCard";
 import { NumberBall } from "@/components/lottery/NumberBall";
 import { Card } from "@/components/ui/Card";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { Colors } from "@/constants/Colors";
 import { Spacing, BorderRadius } from "@/constants/Layout";
 import { TextStyles, Typography } from "@/constants/Typography";
@@ -175,6 +176,9 @@ export default function StatisticsScreen() {
       </View>
 
       <View style={{ height: Spacing.xl }} />
+
+      {/* Ad Banner for Free Users */}
+      <AdBanner />
     </ScrollView>
   );
 }
