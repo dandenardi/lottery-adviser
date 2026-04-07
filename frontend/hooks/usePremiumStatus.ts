@@ -23,6 +23,16 @@ export function usePremiumStatus() {
   });
 }
 
+export function useOfferings() {
+  return useQuery({
+    queryKey: ["offerings"],
+    queryFn: async () => {
+      return revenueCat.getOfferings();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
 /**
  * Hook to check if user has premium access
  * Returns a simple boolean for easy conditional rendering

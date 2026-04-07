@@ -93,6 +93,7 @@ export interface GenerateSuggestionsRequest {
 export interface GenerateSuggestionsResponse {
   suggestions: Suggestion[];
   remaining_today?: number;
+  rewarded_remaining?: number;
   is_premium: boolean;
 }
 
@@ -111,6 +112,17 @@ export interface UpdateSubscriptionRequest {
   is_premium: boolean;
   subscription_id?: string;
   expires_at?: string; // ISO datetime string
+}
+
+export interface AdRewardRequest {
+  user_id: string;
+}
+
+export interface AdRewardResponse {
+  success: boolean;
+  rewarded_suggestions_added: number;
+  total_rewarded_remaining: number;
+  message: string;
 }
 
 // ============================================================================

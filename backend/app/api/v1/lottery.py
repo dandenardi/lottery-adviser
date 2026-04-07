@@ -17,6 +17,8 @@ from app.schemas.lottery import (
     GenerateSuggestionsResponse,
     HistoryResponse,
     LotteryResultResponse,
+    AdRewardRequest,
+    AdRewardResponse,
 )
 from app.services.statistics_service import LotteryStatisticsService
 from app.services.strategy_service import LotteryStrategyGenerator
@@ -36,7 +38,7 @@ async def get_latest_result(db: Session = Depends(get_db)):
     result = db.query(LotteryResult).order_by(desc(LotteryResult.contest_number)).first()
     
     if not result:
-        raise HTTPException(status_code=404, detail="No results found")
+        raise HTTPException(status_code=404, detail="Nenhum resultado encontrado")
     
     return LatestResultResponse(
         contest=result.contest_number,
@@ -86,7 +88,7 @@ async def generate_suggestions(
     if not can_generate:
         raise HTTPException(
             status_code=429,
-            detail="Daily suggestion limit reached. Upgrade to Premium for unlimited suggestions."
+            detail="Limite diário de sugestões atingido. Torne-se Premium para ter sugestões ilimitadas ou assista a um vídeo para ganhar mais uma!"
         )
     
     # Get statistics and history
@@ -109,7 +111,27 @@ async def generate_suggestions(
     return GenerateSuggestionsResponse(
         suggestions=suggestions,
         remaining_today=remaining if not is_premium else None,
+        rewarded_remaining=rate_limit_service.get_rewarded_remaining(request.user_id) if not is_premium else 0,
         is_premium=is_premium
+    )
+
+
+@router.post("/reward", response_model=AdRewardResponse)
+async def claim_ad_reward(
+    request: AdRewardRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Claim a suggestion reward after watching an ad.
+    """
+    rate_limit_service = RateLimitService(db)
+    new_total = rate_limit_service.add_reward(request.user_id, count=1)
+    
+    return AdRewardResponse(
+        success=True,
+        rewarded_suggestions_added=1,
+        total_rewarded_remaining=new_total,
+        message="Recompensa resgatada com sucesso! Você ganhou +1 sugestão."
     )
 
 
@@ -173,7 +195,7 @@ async def get_result_by_contest(
     ).first()
     
     if not result:
-        raise HTTPException(status_code=404, detail=f"Contest {contest_number} not found")
+        raise HTTPException(status_code=404, detail=f"Concurso {contest_number} não encontrado")
     
     return result
 
@@ -198,7 +220,7 @@ async def trigger_update(db: Session = Depends(get_db)):
     if not result.get("success"):
         raise HTTPException(
             status_code=500,
-            detail=f"Update failed: {result.get('error')}"
+            detail=f"Falha na atualização: {result.get('error')}"
         )
     
     return {
@@ -235,7 +257,7 @@ async def get_data_status(db: Session = Depends(get_db)):
     if not latest_api_result:
         raise HTTPException(
             status_code=503,
-            detail="Could not fetch data from Caixa API"
+            detail="Não foi possível buscar dados da API da Caixa"
         )
     
     latest_api_contest = latest_api_result.get("numero")

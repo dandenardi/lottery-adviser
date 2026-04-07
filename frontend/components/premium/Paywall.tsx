@@ -13,16 +13,19 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import Purchases, { PurchasesPackage, PurchasesOffering } from "react-native-purchases";
 import { Button } from "@/components/ui/Button";
 import { PremiumBadge } from "./PremiumBadge";
 import { Colors } from "@/constants/Colors";
 import { Spacing, BorderRadius } from "@/constants/Layout";
 import { TextStyles, Typography } from "@/constants/Typography";
+import { useOfferings } from "@/hooks/usePremiumStatus";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface PaywallProps {
   visible: boolean;
   onClose: () => void;
-  onPurchase: (planId: string) => Promise<void>;
+  onPurchase: (pkg: PurchasesPackage) => Promise<void>;
   onRestore: () => Promise<void>;
 }
 
@@ -35,32 +38,6 @@ const BENEFITS = [
   "🚀 Novos recursos em primeira mão",
 ];
 
-const PLANS = [
-  {
-    id: "daily",
-    name: "Diário",
-    price: "R$ 0,99",
-    period: "por dia",
-    popular: false,
-  },
-  {
-    id: "monthly",
-    name: "Mensal",
-    price: "R$ 29,90",
-    period: "por mês",
-    popular: true,
-    savings: "Melhor valor!",
-  },
-  {
-    id: "yearly",
-    name: "Anual",
-    price: "R$ 299,90",
-    period: "por ano",
-    popular: false,
-    savings: "Economia de 18%",
-  },
-];
-
 export function Paywall({
   visible,
   onClose,
@@ -68,17 +45,24 @@ export function Paywall({
   onRestore,
 }: PaywallProps) {
   const [loading, setLoading] = React.useState(false);
+  const { data: offerings, isLoading: isLoadingOfferings } = useOfferings();
 
-  const handlePurchase = async (planId: string) => {
+  const handlePurchase = async (pkg: PurchasesPackage) => {
     try {
       setLoading(true);
-      await onPurchase(planId);
+      await onPurchase(pkg);
+      onClose();
     } catch (error: any) {
-      Alert.alert("Erro", error.message || "Falha ao processar compra");
+      if (!error.userCancelled) {
+        Alert.alert("Erro", error.message || "Falha ao processar compra");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const currentOffering = offerings?.current;
+  const packages = currentOffering?.availablePackages || [];
 
   const handleRestore = async () => {
     try {
@@ -90,6 +74,16 @@ export function Paywall({
     } finally {
       setLoading(false);
     }
+  };
+
+  const getTranslatedPlanName = (pkg: PurchasesPackage) => {
+    const title = pkg.product.title;
+    // Common store titles that might come in English during sandbox testing
+    if (title.toLowerCase().includes("monthly")) return "Mensal";
+    if (title.toLowerCase().includes("annual")) return "Anual";
+    if (title.toLowerCase().includes("yearly")) return "Anual";
+    if (title.toLowerCase().includes("weekly")) return "Semanal";
+    return title;
   };
 
   return (
@@ -131,31 +125,39 @@ export function Paywall({
 
           {/* Plans */}
           <View style={styles.plansContainer}>
-            {PLANS.map((plan) => (
-              <TouchableOpacity
-                key={plan.id}
-                style={[
-                  styles.planCard,
-                  plan.popular && styles.planCardPopular,
-                ]}
-                onPress={() => handlePurchase(plan.id)}
-                disabled={loading}
-              >
-                {plan.popular && (
-                  <View style={styles.popularBadge}>
-                    <Text style={styles.popularText}>MAIS POPULAR</Text>
-                  </View>
-                )}
+            {isLoadingOfferings ? (
+              <LoadingSpinner text="Carregando planos..." />
+            ) : packages.length > 0 ? (
+              packages.map((pkg) => (
+                <TouchableOpacity
+                  key={pkg.identifier}
+                  style={[
+                    styles.planCard,
+                    pkg.packageType === "ANNUAL" && styles.planCardPopular,
+                  ]}
+                  onPress={() => handlePurchase(pkg)}
+                  disabled={loading}
+                >
+                  {pkg.packageType === "ANNUAL" && (
+                    <View style={styles.popularBadge}>
+                      <Text style={styles.popularText}>MELHOR VALOR</Text>
+                    </View>
+                  )}
 
-                <Text style={styles.planName}>{plan.name}</Text>
-                <Text style={styles.planPrice}>{plan.price}</Text>
-                <Text style={styles.planPeriod}>{plan.period}</Text>
-
-                {plan.savings && (
-                  <Text style={styles.planSavings}>{plan.savings}</Text>
-                )}
-              </TouchableOpacity>
-            ))}
+                  <Text style={styles.planName}>{getTranslatedPlanName(pkg)}</Text>
+                  <Text style={styles.planPrice}>{pkg.product.priceString}</Text>
+                  <Text style={styles.planPeriod}>
+                    {pkg.packageType === "MONTHLY" ? "por mês" : 
+                     pkg.packageType === "ANNUAL" ? "por ano" : 
+                     pkg.packageType === "WEEKLY" ? "por semana" : ""}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.noPlansText}>
+                Nenhum plano disponível no momento.
+              </Text>
+            )}
           </View>
 
           {/* Restore Button */}
@@ -297,5 +299,11 @@ const styles = StyleSheet.create({
     color: Colors.light.textTertiary,
     textAlign: "center",
     marginTop: Spacing.lg,
+  },
+  noPlansText: {
+    ...TextStyles.body,
+    color: Colors.light.textSecondary,
+    textAlign: "center",
+    marginVertical: Spacing.xl,
   },
 });

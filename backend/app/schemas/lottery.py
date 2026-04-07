@@ -112,6 +112,7 @@ class GenerateSuggestionsResponse(BaseModel):
     """Response schema for generated suggestions."""
     suggestions: List[SuggestionResponse]
     remaining_today: Optional[int] = Field(None, description="Remaining suggestions for free users")
+    rewarded_remaining: Optional[int] = Field(0, description="Remaining rewarded suggestions")
     is_premium: bool = Field(default=False, description="Whether user is premium")
 
 
@@ -130,6 +131,19 @@ class UpdateSubscriptionRequest(BaseModel):
     is_premium: bool
     subscription_id: Optional[str] = None
     expires_at: Optional[datetime] = None
+
+
+class AdRewardRequest(BaseModel):
+    """Request schema for claiming an ad reward."""
+    user_id: str = Field(..., description="User/device ID")
+
+
+class AdRewardResponse(BaseModel):
+    """Response schema for ad reward claim."""
+    success: bool
+    rewarded_suggestions_added: int
+    total_rewarded_remaining: int
+    message: str
 
 
 # History Schemas

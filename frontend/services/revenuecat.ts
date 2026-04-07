@@ -30,6 +30,7 @@ const PREMIUM_ENTITLEMENT = "premium";
 
 class RevenueCatService {
   private initialized = false;
+  private isInitializing = false;
 
   /**
    * Initialize RevenueCat SDK
@@ -37,9 +38,14 @@ class RevenueCatService {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.log("[RevenueCat] Already initialized");
       return;
     }
+
+    if (this.isInitializing) {
+      return;
+    }
+
+    this.isInitializing = true;
 
     try {
       // Get device ID for user identification
@@ -52,8 +58,15 @@ class RevenueCatService {
           : REVENUECAT_API_KEY_IOS;
 
       if (!apiKey) {
-        console.warn("[RevenueCat] API key not configured");
+        if (__DEV__) {
+          console.warn("[RevenueCat] API key not configured");
+        }
+        this.isInitializing = false;
         return;
+      }
+
+      if (__DEV__) {
+        console.log(`[RevenueCat] Configuring with key: ${apiKey.substring(0, 8)}...`);
       }
 
       // Configure RevenueCat
@@ -71,14 +84,25 @@ class RevenueCatService {
       console.log("[RevenueCat] Initialized successfully");
     } catch (error) {
       console.error("[RevenueCat] Initialization error:", error);
-      throw error;
+    } finally {
+      this.isInitializing = false;
     }
+  }
+
+  /**
+   * Check if SDK is initialized
+   */
+  isInitialized(): boolean {
+    return this.initialized;
   }
 
   /**
    * Get available offerings (subscription plans)
    */
-  async getOfferings(): Promise<PurchasesOfferings> {
+  async getOfferings(): Promise<PurchasesOfferings | null> {
+    if (Platform.OS === "web" || !this.initialized) {
+      return null;
+    }
     try {
       const offerings = await Purchases.getOfferings();
 
@@ -97,6 +121,9 @@ class RevenueCatService {
    * Purchase a package
    */
   async purchasePackage(pkg: PurchasesPackage): Promise<CustomerInfo> {
+    if (!this.initialized) {
+      throw new Error("RevenueCat is not initialized. Please check your API key.");
+    }
     try {
       const { customerInfo } = await Purchases.purchasePackage(pkg);
 
@@ -119,7 +146,10 @@ class RevenueCatService {
   /**
    * Restore previous purchases
    */
-  async restorePurchases(): Promise<CustomerInfo> {
+  async restorePurchases(): Promise<CustomerInfo | null> {
+    if (Platform.OS === "web" || !this.initialized) {
+      return null;
+    }
     try {
       const customerInfo = await Purchases.restorePurchases();
 
@@ -137,13 +167,18 @@ class RevenueCatService {
   /**
    * Get customer info (subscription status)
    */
-  async getCustomerInfo(): Promise<CustomerInfo> {
+  async getCustomerInfo(): Promise<CustomerInfo | null> {
+    if (Platform.OS === "web" || !this.initialized) {
+      return null;
+    }
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
-    } catch (error) {
-      console.error("[RevenueCat] Error getting customer info:", error);
-      throw error;
+    } catch (error: any) {
+      if (!error?.message?.includes("no singleton instance")) {
+        console.error("[RevenueCat] Error getting customer info:", error);
+      }
+      return null;
     }
   }
 
@@ -151,8 +186,13 @@ class RevenueCatService {
    * Check if user has premium subscription
    */
   async isPremium(): Promise<boolean> {
+    if (Platform.OS === "web" || !this.initialized) {
+      return false;
+    }
     try {
       const customerInfo = await this.getCustomerInfo();
+      if (!customerInfo) return false;
+
       const hasPremium =
         customerInfo.entitlements.active[PREMIUM_ENTITLEMENT] !== undefined;
 
@@ -171,8 +211,13 @@ class RevenueCatService {
    * Get premium expiration date
    */
   async getPremiumExpirationDate(): Promise<Date | null> {
+    if (Platform.OS === "web" || !this.initialized) {
+      return null;
+    }
     try {
       const customerInfo = await this.getCustomerInfo();
+      if (!customerInfo) return null;
+
       const entitlement = customerInfo.entitlements.active[PREMIUM_ENTITLEMENT];
 
       if (entitlement && entitlement.expirationDate) {
@@ -180,8 +225,10 @@ class RevenueCatService {
       }
 
       return null;
-    } catch (error) {
-      console.error("[RevenueCat] Error getting expiration date:", error);
+    } catch (error: any) {
+      if (!error?.message?.includes("no singleton instance")) {
+        console.error("[RevenueCat] Error getting expiration date:", error);
+      }
       return null;
     }
   }
@@ -190,6 +237,7 @@ class RevenueCatService {
    * Logout current user
    */
   async logout(): Promise<void> {
+    if (!this.initialized) return;
     try {
       await Purchases.logOut();
       this.initialized = false;

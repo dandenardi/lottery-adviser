@@ -73,7 +73,7 @@ function getLocalIP() {
   } catch (error) {
     console.error('❌ Error getting local IP:', error.message);
     console.error('\n💡 Please manually set EXPO_PUBLIC_API_BASE_URL_MOBILE in .env file');
-    console.error('   Example: EXPO_PUBLIC_API_BASE_URL_MOBILE=http://192.168.0.109:5000');
+    console.error('   Example: EXPO_PUBLIC_API_BASE_URL_MOBILE=http://192.168.0.109:8000');
     process.exit(1);
   }
 }
@@ -89,8 +89,8 @@ function updateEnvFile(ip) {
   let envContent = fs.readFileSync(envPath, 'utf-8');
 
   // Update the mobile API URL
-  const mobileUrlRegex = /EXPO_PUBLIC_API_BASE_URL_MOBILE=http:\/\/[\d.]+:5000/;
-  const newMobileUrl = `EXPO_PUBLIC_API_BASE_URL_MOBILE=http://${ip}:5000`;
+  const mobileUrlRegex = /EXPO_PUBLIC_API_BASE_URL_MOBILE=http:\/\/[\d.]+:8000/;
+  const newMobileUrl = `EXPO_PUBLIC_API_BASE_URL_MOBILE=http://${ip}:8000`;
 
   if (mobileUrlRegex.test(envContent)) {
     envContent = envContent.replace(mobileUrlRegex, newMobileUrl);
@@ -102,7 +102,7 @@ function updateEnvFile(ip) {
   fs.writeFileSync(envPath, envContent, 'utf-8');
 
   console.log('✅ Updated .env file');
-  console.log(`📱 Mobile API URL: http://${ip}:5000`);
+  console.log(`📱 Mobile API URL: http://${ip}:8000`);
   console.log('\n⚠️  Please restart your Expo dev server (npm start) for changes to take effect');
 }
 

@@ -12,14 +12,18 @@ import { useStatistics } from "@/hooks/useStatistics";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { ResultCard } from "@/components/lottery/ResultCard";
 import { StatCard } from "@/components/lottery/StatCard";
+import { AdBanner } from "@/components/ui/AdBanner";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Colors } from "@/constants/Colors";
-import { Spacing } from "@/constants/Layout";
-import { TextStyles } from "@/constants/Typography";
+import { Spacing, BorderRadius } from "@/constants/Layout";
+import { TextStyles, Typography } from "@/constants/Typography";
+import { useIsPremium } from "@/hooks/usePremiumStatus";
 
 export default function HomeScreen() {
+  const isPremium = useIsPremium();
   const {
     data: latestResult,
     isLoading: isLoadingResult,
@@ -83,6 +87,26 @@ export default function HomeScreen() {
           Seu assistente inteligente de loteria
         </Text>
       </View>
+
+      {/* Premium CTA for Free Users */}
+      {!isPremium && (
+        <Card elevated padding="lg" style={styles.premiumCard}>
+          <View style={styles.premiumHeader}>
+            <Text style={styles.premiumTitle}>⭐ Torne-se Premium</Text>
+            <Text style={styles.premiumBadge}>OFERTA</Text>
+          </View>
+          <Text style={styles.premiumText}>
+            Acesse sugestões ilimitadas, estratégias exclusivas e remova todos os anúncios do app!
+          </Text>
+          <Button
+            title="Conhecer Planos"
+            onPress={() => router.push("/modal")}
+            variant="primary"
+            size="small"
+            style={styles.premiumButton}
+          />
+        </Card>
+      )}
 
       {/* Latest Result */}
       {latestResult && (
@@ -154,6 +178,9 @@ export default function HomeScreen() {
           style={styles.ctaButton}
         />
       </View>
+      
+      {/* Ad Banner at the bottom */}
+      <AdBanner />
     </ScrollView>
   );
 }
@@ -178,6 +205,42 @@ const styles = StyleSheet.create({
   subtitle: {
     ...TextStyles.body,
     color: Colors.light.textSecondary,
+  },
+  premiumCard: {
+    marginBottom: Spacing.xl,
+    backgroundColor: Colors.light.primaryLight + "15",
+    borderColor: Colors.light.primary,
+    borderWidth: 1,
+  },
+  premiumHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.sm,
+  },
+  premiumTitle: {
+    ...TextStyles.h4,
+    color: Colors.light.primary,
+    fontWeight: "bold",
+  },
+  premiumBadge: {
+    backgroundColor: Colors.light.primary,
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "bold",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  premiumText: {
+    ...TextStyles.bodySmall,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
+  },
+  premiumButton: {
+    alignSelf: "flex-start",
+    minWidth: 140,
   },
   section: {
     marginBottom: Spacing.xl,

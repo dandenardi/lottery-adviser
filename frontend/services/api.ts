@@ -13,6 +13,8 @@ import {
   LotteryResult,
   UserSubscriptionStatus,
   UpdateSubscriptionRequest,
+  AdRewardRequest,
+  AdRewardResponse,
   HealthCheckResponse,
   APIError,
 } from "@/types/api";
@@ -35,7 +37,16 @@ const getApiBaseUrl = (): string => {
   // For mobile (Android/iOS)
   // 1. Try mobile-specific env var (usually for dev/local)
   // 2. Try generic base URL (usually for prod)
-  // 3. Fallback to production Render URL (SAFEST for APKs)
+  // 3. If in DEV mode, fallback to Android Emulator default IP
+  // 4. Fallback to production Render URL (SAFEST for APKs)
+  if (__DEV__) {
+    return (
+      process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE ||
+      process.env.EXPO_PUBLIC_API_BASE_URL ||
+      "http://10.0.2.2:8000" // Default for Android Emulator to host machine
+    );
+  }
+
   return (
     process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE ||
     process.env.EXPO_PUBLIC_API_BASE_URL ||
@@ -66,7 +77,7 @@ class LotteryAPI {
   constructor() {
     this.client = axios.create({
       baseURL: `${API_BASE_URL}${API_PREFIX}`,
-      timeout: 30000, // 30s para lidar com cold start do Render (free tier)
+      timeout: 60000, // 60s para lidar com cold start do Render (free tier)
       headers: {
         "Content-Type": "application/json",
       },
@@ -186,6 +197,17 @@ class LotteryAPI {
   ): Promise<GenerateSuggestionsResponse> {
     const response = await this.client.post<GenerateSuggestionsResponse>(
       "/suggestions",
+      request,
+    );
+    return response.data;
+  }
+
+  /**
+   * Claim a suggestion reward after watching an ad
+   */
+  async claimAdReward(request: AdRewardRequest): Promise<AdRewardResponse> {
+    const response = await this.client.post<AdRewardResponse>(
+      "/reward",
       request,
     );
     return response.data;
