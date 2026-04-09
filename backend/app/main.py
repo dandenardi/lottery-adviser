@@ -27,6 +27,14 @@ async def lifespan(app: FastAPI):
     # Startup
     print(f"Starting {settings.app_name} v{settings.app_version}")
     print(f"Environment: {settings.environment}")
+    
+    # Sync database schema (safely add missing columns)
+    try:
+        from app.core.schema import ensure_schema_sync
+        ensure_schema_sync()
+    except Exception as e:
+        print(f"Schema sync warning: {e}")
+        
     print(f"Database: Connected")
     
     # Check and update lottery data
